@@ -1,24 +1,34 @@
-using VetSqlClient.Services;
+using VetSqlClient.Services; // <-- to odkomentuj
+using System.Data.SqlClient;
+using VetSqlClient.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Dodaj dostęp do konfiguracji connection stringów
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
+// Dodaj serwis biznesowy (np. ClientService)
+builder.Services.AddScoped<IClientService, ClientService>();
+
+// Kontrolery
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+// Dokumentacja OpenAPI (może być używana przez np. Postmana)
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
-builder.Services.AddTransient<IDbService, DbService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Konfiguracja potoku HTTP
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi(); // działa jak Swagger, ale bez UI
 }
 
+// Jeśli masz uwierzytelnianie — zostaje
 app.UseAuthorization();
 
+// Mapuj wszystkie kontrolery (np. /api/clients)
 app.MapControllers();
 
 app.Run();

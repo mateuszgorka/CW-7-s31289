@@ -1,3 +1,9 @@
-﻿namespace VetSqlClient.Exceptions;
+namespace VetSqlClient.Exceptions;
 
-public class NotFoundException(string message) : Exception(message);
+public class NotFoundException : Exception
+{
+    public NotFoundException(string s)
+    {
+        throw new NotImplementedException();
+    }
+}
