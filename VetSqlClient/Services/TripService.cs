@@ -6,13 +6,11 @@ namespace VetSqlClient.Services;
 public class TripService : ITripService
 {
     private readonly string _connectionString;
-    
-    
+
     public TripService(IConfiguration configuration)
     {
-        Console.WriteLine("Connection string: " + _connectionString);
-
-        _connectionString = configuration.GetConnectionString("DefaultConnection");
+        _connectionString = configuration.GetConnectionString("Default")
+                            ?? throw new InvalidOperationException("Brak connection stringa 'Default' w konfiguracji.");
     }
 
     public async Task<List<TripDto>> GetAllTripsAsync()
