@@ -1,12 +1,12 @@
 using VetSqlClient.Models.DTOs;
 
-namespace VetSqlClient.Services;
-
-public interface IClientService
+namespace VetSqlClient.Services
 {
-    Task<List<ClientTripDto>> GetClientTripsAsync(int clientId);
-    Task<int> CreateClientAsync(ClientDto client);
-    Task RegisterClientToTripAsync(int clientId, int tripId);
-    Task RemoveClientFromTripAsync(int clientId, int tripId);
-    
+    public interface IClientService
+    {
+        Task<IEnumerable<ClientTripDto>> GetClientTrips(int clientId);
+        Task<int> AddClient(ClientDto client);
+        Task RegisterClientToTrip(int clientId, int tripId);
+        Task UnregisterClientFromTrip(int clientId, int tripId);
+    }
 }

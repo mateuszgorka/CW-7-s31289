@@ -1,48 +1,72 @@
 using Microsoft.AspNetCore.Mvc;
+using VetSqlClient.Exceptions;
 using VetSqlClient.Models.DTOs;
 using VetSqlClient.Services;
 
-namespace VetSqlClient.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class ClientsController : ControllerBase
+namespace VetSqlClient.Controllers
 {
-    private readonly IClientService _clientService;
-
-    public ClientsController(IClientService clientService)
+    [ApiController]
+    [Route("api/clients")]
+    public class ClientsController : ControllerBase
     {
-        _clientService = clientService;
-    }
+        private readonly IClientService _clientService;
 
-    [HttpPost]
-    public async Task<IActionResult> CreateClient([FromBody] ClientDto dto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        public ClientsController(IClientService clientService)
+        {
+            _clientService = clientService;
+        }
 
-        int id = await _clientService.CreateClientAsync(dto);
-        return Created($"api/clients/{id}", new { Id = id });
-    }
+        [HttpGet("{id}/trips")]
+        public async Task<IActionResult> GetClientTrips(int id)
+        {
+            try
+            {
+                var trips = await _clientService.GetClientTrips(id);
+                return Ok(trips);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
 
-    [HttpGet("{id}/trips")]
-    public async Task<IActionResult> GetClientTrips(int id)
-    {
-        var trips = await _clientService.GetClientTripsAsync(id);
-        return Ok(trips);
-    }
+        [HttpPost]
+        public async Task<IActionResult> AddClient([FromBody] ClientDto clientDto)
+        {
+            var id = await _clientService.AddClient(clientDto);
+            return CreatedAtAction(nameof(GetClientTrips), new { id = id }, null);
+        }
 
-    [HttpPut("{id}/trips/{tripId}")]
-    public async Task<IActionResult> RegisterClient(int id, int tripId)
-    {
-        await _clientService.RegisterClientToTripAsync(id, tripId);
-        return Ok("Client registered to trip.");
-    }
+        [HttpPost("{clientId}/trips/{tripId}")]
+        public async Task<IActionResult> RegisterClientToTrip(int clientId, int tripId)
+        {
+            try
+            {
+                await _clientService.RegisterClientToTrip(clientId, tripId);
+                return Ok("Client registered for the trip");
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-    [HttpDelete("{id}/trips/{tripId}")]
-    public async Task<IActionResult> RemoveClient(int id, int tripId)
-    {
-        await _clientService.RemoveClientFromTripAsync(id, tripId);
-        return Ok("Client removed from trip.");
+        [HttpDelete("{clientId}/trips/{tripId}")]
+        public async Task<IActionResult> UnregisterClientFromTrip(int clientId, int tripId)
+        {
+            try
+            {
+                await _clientService.UnregisterClientFromTrip(clientId, tripId);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
     }
 }
