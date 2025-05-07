@@ -7,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Dodaj dostęp do konfiguracji connection stringów
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
+builder.Services.AddTransient<ITripService, TripService>();
+
+
 // Dodaj serwis biznesowy (np. ClientService)
 builder.Services.AddScoped<IClientService, ClientService>();
 
